@@ -6,6 +6,7 @@ import (
 
 	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/path"
+	"github.com/tinyshell/internal/state"
 )
 
 type Type struct {
@@ -15,7 +16,10 @@ func NewType() *Type {
 	return &Type{}
 }
 
-func (t *Type) Execute(args []string) (string, func(), error) {
+func (t *Type) Execute(
+	state *state.State,
+	args []string,
+) (string, func(), error) {
 	var res strings.Builder
 	builtinCommands := NewBuiltin()
 	p := path.NewPath()
