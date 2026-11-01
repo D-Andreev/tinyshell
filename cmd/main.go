@@ -29,7 +29,7 @@ func main() {
 
 	for {
 		// read input
-		fmt.Printf("%s ", constants.SHELL_TRAILING_SYMBOL)
+		fmt.Printf("%s ", constants.SHELL_TRAILING_SYMBOL+"~"+path.ReplaceHomeDir(currentPath))
 		input, err := stdinR.ReadString('\n')
 		if err != nil {
 			fmt.Printf(constants.ERROR_READ_STDIN, err.Error())

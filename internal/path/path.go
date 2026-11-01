@@ -50,3 +50,7 @@ func GetCurrentPath() (string, error) {
 	exPath := filepath.Dir(ex)
 	return exPath, nil
 }
+
+func ReplaceHomeDir(dir string) string {
+	return strings.ReplaceAll(dir, os.Getenv("HOME"), "")
+}
