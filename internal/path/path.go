@@ -3,6 +3,7 @@ package path
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/tinyshell/internal/constants"
@@ -39,4 +40,13 @@ func (p *Path) Get(executable string) (string, error) {
 	}
 
 	return "", fmt.Errorf(constants.COMMAND_NOT_FOUND, executable)
+}
+
+func GetCurrentPath() (string, error) {
+	ex, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	exPath := filepath.Dir(ex)
+	return exPath, nil
 }

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/tinyshell/internal/constants"
+	"github.com/tinyshell/internal/state"
 )
 
 type Echo struct {
@@ -13,7 +14,10 @@ func NewEcho() *Echo {
 	return &Echo{}
 }
 
-func (e *Echo) Execute(args []string) (string, func(), error) {
+func (e *Echo) Execute(
+	state *state.State,
+	args []string,
+) (string, func(), error) {
 	if len(args) == 0 {
 		return "\n", constants.NOOP, nil
 	}

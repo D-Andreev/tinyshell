@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/tinyshell/internal/constants"
+	"github.com/tinyshell/internal/state"
 )
 
 type Commander interface {
-	Execute(args []string) (string, func(), error)
+	Execute(state *state.State, args []string) (string, func(), error)
 }
 
 type Builtin struct {
@@ -20,6 +21,7 @@ func NewBuiltin() *Builtin {
 			"exit": NewExit(),
 			"echo": NewEcho(),
 			"type": NewType(),
+			"pwd":  NewPwd(),
 		},
 	}
 }

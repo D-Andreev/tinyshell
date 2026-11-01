@@ -13,12 +13,19 @@ import (
 	"github.com/tinyshell/internal/commands"
 	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/path"
+	"github.com/tinyshell/internal/state"
 )
 
 func main() {
 	stdinR := bufio.NewReader(os.Stdin)
 	builtinCommands := commands.NewBuiltin()
 	p := path.NewPath()
+	currentPath, err := path.GetCurrentPath()
+	if err != nil {
+		fmt.Printf(constants.ERROR_READ_CURRENT_PATH, err.Error())
+		os.Exit(1)
+	}
+	state := state.NewState(currentPath)
 
 	for {
 		// read input
@@ -110,7 +117,7 @@ func main() {
 
 		// execute
 		args := parts[1:]
-		res, effect, err := command.Execute(args)
+		res, effect, err := command.Execute(state, args)
 		if err != nil {
 
 		}

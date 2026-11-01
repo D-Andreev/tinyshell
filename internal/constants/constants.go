@@ -14,4 +14,5 @@ const (
 	PERMISSION_DENIED              = "%s: You shall not pass!\n"
 	ERROR_FROM_EXT_PROGRAM         = "Error from %s: %s\n"
 	INVALID_EXIT_STATUS_CODE       = "Coud not parse exit status code %s\n"
+	ERROR_READ_CURRENT_PATH        = "Coud not read current path %s"
 )
