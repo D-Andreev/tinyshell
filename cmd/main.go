@@ -20,7 +20,7 @@ func main() {
 	stdinR := bufio.NewReader(os.Stdin)
 	builtinCommands := commands.NewBuiltin()
 	p := path.NewPath()
-	currentPath, err := path.GetCurrentPath()
+	currentPath, err := p.GetCurrentPath()
 	if err != nil {
 		fmt.Printf(constants.ERROR_READ_CURRENT_PATH, err.Error())
 		os.Exit(1)
@@ -28,8 +28,14 @@ func main() {
 	state := state.NewState(currentPath)
 
 	for {
+		currentDir, err := state.Get("currentDir")
+		if err != nil {
+			fmt.Printf(constants.ERROR_READ_STDIN, err.Error())
+			os.Exit(1)
+		}
+
 		// read input
-		fmt.Printf("%s ", constants.SHELL_TRAILING_SYMBOL+"~"+path.ReplaceHomeDir(currentPath))
+		fmt.Printf("%s ", constants.SHELL_TRAILING_SYMBOL+"~"+p.ReplaceHomeDir(currentDir))
 		input, err := stdinR.ReadString('\n')
 		if err != nil {
 			fmt.Printf(constants.ERROR_READ_STDIN, err.Error())
@@ -78,6 +84,7 @@ func main() {
 			)
 			defer cancel()
 			cmd := exec.CommandContext(ctx, extProgramPath, parts[1:]...)
+			cmd.Dir = currentDir
 			stdout, err := cmd.StdoutPipe()
 			if err != nil {
 				fmt.Printf(

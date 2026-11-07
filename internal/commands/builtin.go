@@ -22,6 +22,7 @@ func NewBuiltin() *Builtin {
 			"echo": NewEcho(),
 			"type": NewType(),
 			"pwd":  NewPwd(),
+			"cd":   NewCd(),
 		},
 	}
 }

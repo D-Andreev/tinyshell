@@ -3,6 +3,7 @@ package constants
 var SHELL_TRAILING_SYMBOL = "$"
 var NOOP = func() {}
 var EXECUTE_PERMISSION_BIT = "x"
+var TILDE = "~"
 
 type ErrMsg string
 
@@ -15,4 +16,6 @@ const (
 	ERROR_FROM_EXT_PROGRAM         = "Error from %s: %s\n"
 	INVALID_EXIT_STATUS_CODE       = "Coud not parse exit status code %s\n"
 	ERROR_READ_CURRENT_PATH        = "Coud not read current path %s"
+	ERROR_NO_SUCH_FILE_OR_DIR      = "cd: No such file or directory: %s"
+	ERROR_NOT_A_DIRECTORY          = "cd: not a directory: %s"
 )
