@@ -42,7 +42,7 @@ func (p *Path) Get(executable string) (string, error) {
 	return "", fmt.Errorf(constants.COMMAND_NOT_FOUND, executable)
 }
 
-func GetCurrentPath() (string, error) {
+func (p *Path) GetCurrentPath() (string, error) {
 	ex, err := os.Executable()
 	if err != nil {
 		return "", err
@@ -51,6 +51,6 @@ func GetCurrentPath() (string, error) {
 	return exPath, nil
 }
 
-func ReplaceHomeDir(dir string) string {
+func (p *Path) ReplaceHomeDir(dir string) string {
 	return strings.ReplaceAll(dir, os.Getenv("HOME"), "")
 }
