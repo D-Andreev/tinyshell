@@ -7,13 +7,14 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/tinyshell/internal/commands"
 	"github.com/tinyshell/internal/constants"
+	"github.com/tinyshell/internal/lexer"
 	"github.com/tinyshell/internal/path"
 	"github.com/tinyshell/internal/state"
+	"github.com/tinyshell/internal/token"
 )
 
 func main() {
@@ -41,8 +42,22 @@ func main() {
 			fmt.Printf(constants.ERROR_READ_STDIN, err.Error())
 			os.Exit(1)
 		}
-		parts := strings.Fields(input)
-		if len(parts) == 0 {
+		l := lexer.New(input)
+		var parts []string
+		illegal := false
+		for {
+			tok := l.NextToken()
+			if tok.Type == token.EOF {
+				break
+			}
+			if tok.Type == token.ILLEGAL {
+				fmt.Printf("syntax error: unterminated quote %s\n", tok.Literal)
+				illegal = true
+				break
+			}
+			parts = append(parts, tok.Literal)
+		}
+		if illegal || len(parts) == 0 {
 			continue
 		}
 		command, err := builtinCommands.Get(parts[0])
