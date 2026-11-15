@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/tinyshell/internal/constants"
-	"github.com/tinyshell/internal/state"
 )
 
 type Cd struct {
@@ -29,7 +28,6 @@ Stretch: cd - goes back to the previous directory ($OLDPWD) and prints it.
 The change must persist: after cd /tmp, both pwd and an external ls see /tmp.
 */
 func (cd *Cd) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,
@@ -38,7 +36,10 @@ func (cd *Cd) Execute(
 	targetPath := os.Getenv("HOME")
 	// Go to home page
 	if len(args) == 0 || (len(args) == 1 && args[0] == constants.TILDE) {
-		state.Set("currentDir", targetPath)
+		if err := os.Chdir(targetPath); err != nil {
+			stderr.Write([]byte(err.Error() + "\n"))
+			return 1
+		}
 		return 0
 	}
 
@@ -60,6 +61,9 @@ func (cd *Cd) Execute(
 		return 1
 	}
 
-	state.Set("currentDir", path)
+	if err := os.Chdir(path); err != nil {
+		stderr.Write([]byte(err.Error() + "\n"))
+		return 1
+	}
 	return 0
 }

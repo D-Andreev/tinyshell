@@ -3,8 +3,6 @@ package commands
 import (
 	"io"
 	"strings"
-
-	"github.com/tinyshell/internal/state"
 )
 
 type Echo struct {
@@ -15,7 +13,6 @@ func NewEcho() *Echo {
 }
 
 func (e *Echo) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,

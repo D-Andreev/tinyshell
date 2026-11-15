@@ -7,7 +7,6 @@ import (
 
 	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/path"
-	"github.com/tinyshell/internal/state"
 )
 
 type Type struct {
@@ -19,7 +18,6 @@ func NewType(builtin *Builtin) *Type {
 }
 
 func (t *Type) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,

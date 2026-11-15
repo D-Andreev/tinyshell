@@ -12,7 +12,6 @@ import (
 	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/parser"
 	"github.com/tinyshell/internal/path"
-	"github.com/tinyshell/internal/state"
 )
 
 type Executor struct {
@@ -26,24 +25,20 @@ func NewExecutor(builtin *commands.Builtin) *Executor {
 func (e *Executor) Execute(
 	pipeline *parser.Pipeline,
 	p *path.Path,
-	state *state.State,
-	currentDir string,
 ) {
 	command, err := e.builtin.Get(pipeline.Commands[0].Args[0])
 	if err != nil {
-		e.RunExternalCmd(pipeline, p, state, currentDir)
+		e.RunExternalCmd(pipeline, p)
 		return
 	}
 
 	args := pipeline.Commands[0].Args[1:]
-	_ = command.Execute(state, args, os.Stdin, os.Stdout, os.Stderr)
+	_ = command.Execute(args, os.Stdin, os.Stdout, os.Stderr)
 }
 
 func (e *Executor) RunExternalCmd(
 	pipeline *parser.Pipeline,
 	p *path.Path,
-	state *state.State,
-	currentDir string,
 ) {
 	// command is not builtin, try to execute external program
 	extProgramPath, err := p.Get(pipeline.Commands[0].Args[0])
@@ -82,7 +77,6 @@ func (e *Executor) RunExternalCmd(
 	)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, extProgramPath, pipeline.Commands[0].Args[1:]...)
-	cmd.Dir = currentDir
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Printf(

@@ -11,7 +11,6 @@ import (
 	"github.com/tinyshell/internal/lexer"
 	"github.com/tinyshell/internal/parser"
 	"github.com/tinyshell/internal/path"
-	"github.com/tinyshell/internal/state"
 	"github.com/tinyshell/internal/token"
 )
 
@@ -19,17 +18,11 @@ func main() {
 	stdinR := bufio.NewReader(os.Stdin)
 	builtinCommands := commands.NewBuiltin()
 	p := path.NewPath()
-	currentPath, err := p.GetCurrentPath()
-	if err != nil {
-		fmt.Printf(constants.ERROR_READ_CURRENT_PATH, err.Error())
-		os.Exit(1)
-	}
-	state := state.NewState(currentPath)
 
 	for {
 		parser := parser.NewParser()
 		executor := executor.NewExecutor(builtinCommands)
-		currentDir, err := state.Get("currentDir")
+		currentDir, err := os.Getwd()
 		if err != nil {
 			fmt.Printf(constants.ERROR_READ_STDIN, err.Error())
 			os.Exit(1)
@@ -61,6 +54,6 @@ func main() {
 			continue
 		}
 		parser.Parse(tokens)
-		executor.Execute(parser.Pipeline, p, state, currentDir)
+		executor.Execute(parser.Pipeline, p)
 	}
 }
