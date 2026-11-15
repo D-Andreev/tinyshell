@@ -55,6 +55,74 @@ func (l *Lexer) NextToken() token.Token {
 			}
 			res.WriteByte(l.ch) // next char is literal, whatever it is
 			l.readChar()
+		case '>':
+			if res.Len() > 0 {
+				return token.Token{Type: token.Word, Literal: res.String()}
+			}
+			if l.peekChar() == '>' {
+				l.readChar()
+				l.readChar()
+				return token.Token{Type: token.RedirAppend, Literal: ">>"}
+			}
+
+			l.readChar()
+			return token.Token{Type: token.RedirOut, Literal: ">"}
+		case '1':
+			if l.peekChar() == '>' {
+				if res.Len() > 0 {
+					literal := res.String() + string(l.ch)
+					l.readChar()
+					return token.Token{Type: token.Word, Literal: literal}
+				}
+				tok := token.Token{}
+				l.readChar()
+				if l.peekChar() == '>' {
+					tok.Literal = "1>>"
+					tok.Type = token.RedirAppend
+					l.readChar()
+					l.readChar()
+					return tok
+				}
+				tok.Literal = "1>"
+				tok.Type = token.RedirOut
+				l.readChar()
+				return tok
+			} else {
+				// not an operator, continue as normal
+				res.WriteByte(l.ch)
+				l.readChar()
+			}
+		case '2':
+			if l.peekChar() == '>' {
+				if res.Len() > 0 {
+					literal := res.String() + string(l.ch)
+					l.readChar()
+					return token.Token{Type: token.Word, Literal: literal}
+				}
+				tok := token.Token{}
+				l.readChar()
+				if l.peekChar() == '>' {
+					tok.Literal = "2>>"
+					tok.Type = token.RedirErrAppend
+					l.readChar()
+					l.readChar()
+					return tok
+				}
+				tok.Literal = "2>"
+				tok.Type = token.RedirErr
+				l.readChar()
+				return tok
+			} else {
+				// not an operator, continue as normal
+				res.WriteByte(l.ch)
+				l.readChar()
+			}
+		case '|':
+			if res.Len() > 0 {
+				return token.Token{Type: token.Word, Literal: res.String()}
+			}
+			l.readChar()
+			return token.Token{Type: token.Pipe, Literal: "|"}
 		default:
 			res.WriteByte(l.ch)
 			l.readChar()
@@ -115,4 +183,15 @@ func (l *Lexer) readInsideDoubleQuotes(res *strings.Builder) bool {
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

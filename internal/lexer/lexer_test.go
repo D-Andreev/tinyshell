@@ -294,7 +294,6 @@ func TestLexWordConcatenation(t *testing.T) {
 }
 
 func TestLexRedirections(t *testing.T) {
-	t.Skip("not implemented yet: lexer does not tokenize operators")
 	runLexCases(t, []lexCase{
 		{
 			"stdout",
@@ -352,7 +351,6 @@ func TestLexRedirections(t *testing.T) {
 // Spacing decides where a word ends. A digit is an fd number only when it is
 // the whole word and directly precedes a redirect.
 func TestLexOperatorSpacing(t *testing.T) {
-	t.Skip("not implemented yet: lexer does not tokenize operators")
 	runLexCases(t, []lexCase{
 		{
 			"no spaces",
@@ -398,7 +396,6 @@ func TestLexOperatorSpacing(t *testing.T) {
 }
 
 func TestLexPipelines(t *testing.T) {
-	t.Skip("not implemented yet: lexer does not tokenize operators")
 	runLexCases(t, []lexCase{
 		{
 			"two stages",
@@ -501,7 +498,6 @@ func TestLexUnexpandedWords(t *testing.T) {
 // These inputs are valid for the lexer even though the parser would reject
 // them. The lexer does not know the grammar.
 func TestLexMalformedButTokenizable(t *testing.T) {
-	t.Skip("not implemented yet: lexer does not tokenize operators")
 	runLexCases(t, []lexCase{
 		{
 			"empty line",
@@ -555,8 +551,6 @@ func TestLexMalformedButTokenizable(t *testing.T) {
 // NextToken has no error return yet, so unterminated quotes cannot be
 // reported. These cases are kept so they run once the lexer can report errors.
 func TestLexUnterminatedQuotes(t *testing.T) {
-	t.Skip("lexer has no error reporting: New and NextToken do not return errors")
-
 	cases := []struct {
 		name  string
 		input string
