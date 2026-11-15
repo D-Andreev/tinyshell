@@ -4,20 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	. "github.com/tinyshell/internal/testutil"
 	. "github.com/tinyshell/internal/token"
-)
-
-// w returns a Word token with the given value.
-func w(s string) Token { return Token{Type: Word, Literal: s} }
-
-var (
-	pipe = Token{Type: Pipe, Literal: "|"}
-	gt   = Token{Type: RedirOut, Literal: ">"}
-	gt1  = Token{Type: RedirOut, Literal: "1>"}
-	dgt  = Token{Type: RedirAppend, Literal: ">>"}
-	dgt1 = Token{Type: RedirAppend, Literal: "1>>"}
-	gt2  = Token{Type: RedirErr, Literal: "2>"}
-	dgt2 = Token{Type: RedirErrAppend, Literal: "2>>"}
 )
 
 type lexCase struct {
@@ -65,57 +53,57 @@ func TestLexWords(t *testing.T) {
 		{
 			"single word",
 			`ls`,
-			[]Token{w("ls")},
+			[]Token{W("ls")},
 		},
 		{
 			"flags and path",
 			`ls -la /tmp`,
-			[]Token{w("ls"), w("-la"), w("/tmp")},
+			[]Token{W("ls"), W("-la"), W("/tmp")},
 		},
 		{
 			"two args",
 			`echo hello world`,
-			[]Token{w("echo"), w("hello"), w("world")},
+			[]Token{W("echo"), W("hello"), W("world")},
 		},
 		{
 			"extra spaces collapse",
 			`echo    hello      world`,
-			[]Token{w("echo"), w("hello"), w("world")},
+			[]Token{W("echo"), W("hello"), W("world")},
 		},
 		{
 			"leading and trailing spaces",
 			`   ls   `,
-			[]Token{w("ls")},
+			[]Token{W("ls")},
 		},
 		{
 			"tabs separate words",
 			"echo\thello\tworld",
-			[]Token{w("echo"), w("hello"), w("world")},
+			[]Token{W("echo"), W("hello"), W("world")},
 		},
 		{
 			"trailing newline ignored",
 			"ls\n",
-			[]Token{w("ls")},
+			[]Token{W("ls")},
 		},
 		{
 			"multiple args to builtin",
 			`type echo ls nonexistent`,
-			[]Token{w("type"), w("echo"), w("ls"), w("nonexistent")},
+			[]Token{W("type"), W("echo"), W("ls"), W("nonexistent")},
 		},
 		{
 			"numeric arg",
 			`exit 3`,
-			[]Token{w("exit"), w("3")},
+			[]Token{W("exit"), W("3")},
 		},
 		{
 			"relative path",
 			`cd ../src`,
-			[]Token{w("cd"), w("../src")},
+			[]Token{W("cd"), W("../src")},
 		},
 		{
 			"no args",
 			`pwd`,
-			[]Token{w("pwd")},
+			[]Token{W("pwd")},
 		},
 	})
 }
@@ -125,42 +113,42 @@ func TestLexSingleQuotes(t *testing.T) {
 		{
 			"space kept",
 			`echo 'hello world'`,
-			[]Token{w("echo"), w("hello world")},
+			[]Token{W("echo"), W("hello world")},
 		},
 		{
 			"many spaces kept",
 			`echo 'hello    world'`,
-			[]Token{w("echo"), w("hello    world")},
+			[]Token{W("echo"), W("hello    world")},
 		},
 		{
 			"adjacent quoted parts join",
 			`echo 'it''s'`,
-			[]Token{w("echo"), w("its")},
+			[]Token{W("echo"), W("its")},
 		},
 		{
 			"backslash literal",
 			`echo 'a\nb'`,
-			[]Token{w("echo"), w(`a\nb`)},
+			[]Token{W("echo"), W(`a\nb`)},
 		},
 		{
 			"dollar literal",
 			`echo '$HOME'`,
-			[]Token{w("echo"), w("$HOME")},
+			[]Token{W("echo"), W("$HOME")},
 		},
 		{
 			"operators literal",
 			`echo 'a | b > c'`,
-			[]Token{w("echo"), w("a | b > c")},
+			[]Token{W("echo"), W("a | b > c")},
 		},
 		{
 			"double quote inside single",
 			`echo 'say "hi"'`,
-			[]Token{w("echo"), w(`say "hi"`)},
+			[]Token{W("echo"), W(`say "hi"`)},
 		},
 		{
 			"empty single quotes",
 			`echo ''`,
-			[]Token{w("echo"), w("")},
+			[]Token{W("echo"), W("")},
 		},
 	})
 }
@@ -170,47 +158,47 @@ func TestLexDoubleQuotes(t *testing.T) {
 		{
 			"space kept",
 			`echo "hello world"`,
-			[]Token{w("echo"), w("hello world")},
+			[]Token{W("echo"), W("hello world")},
 		},
 		{
 			"escaped quotes",
 			`echo "say \"hi\""`,
-			[]Token{w("echo"), w(`say "hi"`)},
+			[]Token{W("echo"), W(`say "hi"`)},
 		},
 		{
 			"backslash n stays",
 			`echo "a\nb"`,
-			[]Token{w("echo"), w(`a\nb`)},
+			[]Token{W("echo"), W(`a\nb`)},
 		},
 		{
 			"escaped backslash",
 			`echo "back\\slash"`,
-			[]Token{w("echo"), w(`back\slash`)},
+			[]Token{W("echo"), W(`back\slash`)},
 		},
 		{
 			"escaped dollar",
 			`echo "\$HOME"`,
-			[]Token{w("echo"), w("$HOME")},
+			[]Token{W("echo"), W("$HOME")},
 		},
 		{
 			"single quote inside double",
 			`echo "it's fine"`,
-			[]Token{w("echo"), w("it's fine")},
+			[]Token{W("echo"), W("it's fine")},
 		},
 		{
 			"operators literal",
 			`echo "a | b > c"`,
-			[]Token{w("echo"), w("a | b > c")},
+			[]Token{W("echo"), W("a | b > c")},
 		},
 		{
 			"empty string is a word",
 			`echo ""`,
-			[]Token{w("echo"), w("")},
+			[]Token{W("echo"), W("")},
 		},
 		{
 			"two empty words",
 			`echo "" ""`,
-			[]Token{w("echo"), w(""), w("")},
+			[]Token{W("echo"), W(""), W("")},
 		},
 	})
 }
@@ -220,44 +208,44 @@ func TestLexBackslashEscapes(t *testing.T) {
 		{
 			"escaped space",
 			`echo hello\ world`,
-			[]Token{w("echo"), w("hello world")},
+			[]Token{W("echo"), W("hello world")},
 		},
 		{
 			"escaped single quotes",
 			`echo \'quoted\'`,
-			[]Token{w("echo"), w("'quoted'")},
+			[]Token{W("echo"), W("'quoted'")},
 		},
 		{
 			"escaped backslash",
 			`echo a\\b`,
-			[]Token{w("echo"), w(`a\b`)},
+			[]Token{W("echo"), W(`a\b`)},
 		},
 		{
-			"escaped pipe is a word",
+			"escaped PipeTok is a word",
 			`echo \|`,
-			[]Token{w("echo"), w("|")},
+			[]Token{W("echo"), W("|")},
 		},
 		{
-			"escaped gt is a word",
+			"escaped Gt is a word",
 			`echo \>`,
-			[]Token{w("echo"), w(">")},
+			[]Token{W("echo"), W(">")},
 		},
 		{
 			"escaped double quote",
 			`echo \"x\"`,
-			[]Token{w("echo"), w(`"x"`)},
+			[]Token{W("echo"), W(`"x"`)},
 		},
 		{
 			"escaped ordinary char",
 			`echo \a`,
-			[]Token{w("echo"), w("a")},
+			[]Token{W("echo"), W("a")},
 		},
 		// bash -c keeps a trailing backslash literally. An interactive shell
 		// would ask for a continuation line instead; that is a stretch goal.
 		{
 			"trailing backslash",
 			`echo trailing\`,
-			[]Token{w("echo"), w(`trailing\`)},
+			[]Token{W("echo"), W(`trailing\`)},
 		},
 	})
 }
@@ -268,27 +256,27 @@ func TestLexWordConcatenation(t *testing.T) {
 		{
 			"double single plain",
 			`echo "foo"'bar'baz`,
-			[]Token{w("echo"), w("foobarbaz")},
+			[]Token{W("echo"), W("foobarbaz")},
 		},
 		{
 			"empty quotes in middle",
 			`echo a""b`,
-			[]Token{w("echo"), w("ab")},
+			[]Token{W("echo"), W("ab")},
 		},
 		{
 			"alternating",
 			`echo "a"b'c'"d"`,
-			[]Token{w("echo"), w("abcd")},
+			[]Token{W("echo"), W("abcd")},
 		},
 		{
 			"quoted space joins",
 			`echo hello" "world`,
-			[]Token{w("echo"), w("hello world")},
+			[]Token{W("echo"), W("hello world")},
 		},
 		{
 			"quoted command name",
 			`'my program' arg1`,
-			[]Token{w("my program"), w("arg1")},
+			[]Token{W("my program"), W("arg1")},
 		},
 	})
 }
@@ -298,52 +286,52 @@ func TestLexRedirections(t *testing.T) {
 		{
 			"stdout",
 			`echo hi > out.txt`,
-			[]Token{w("echo"), w("hi"), gt, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Gt, W("out.txt")},
 		},
 		{
 			"append",
 			`echo hi >> out.txt`,
-			[]Token{w("echo"), w("hi"), dgt, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Dgt, W("out.txt")},
 		},
 		{
 			"explicit fd 1",
 			`echo hi 1> out.txt`,
-			[]Token{w("echo"), w("hi"), gt1, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Gt1, W("out.txt")},
 		},
 		{
 			"explicit fd 1 append",
 			`echo hi 1>> out.txt`,
-			[]Token{w("echo"), w("hi"), dgt1, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Dgt1, W("out.txt")},
 		},
 		{
 			"stderr",
 			`ls /nope 2> err.txt`,
-			[]Token{w("ls"), w("/nope"), gt2, w("err.txt")},
+			[]Token{W("ls"), W("/nope"), Gt2, W("err.txt")},
 		},
 		{
 			"stderr append",
 			`ls /nope 2>> err.txt`,
-			[]Token{w("ls"), w("/nope"), dgt2, w("err.txt")},
+			[]Token{W("ls"), W("/nope"), Dgt2, W("err.txt")},
 		},
 		{
 			"both streams",
 			`ls /nope /tmp > out.txt 2> err.txt`,
-			[]Token{w("ls"), w("/nope"), w("/tmp"), gt, w("out.txt"), gt2, w("err.txt")},
+			[]Token{W("ls"), W("/nope"), W("/tmp"), Gt, W("out.txt"), Gt2, W("err.txt")},
 		},
 		{
 			"redirect first",
 			`> out.txt echo hi`,
-			[]Token{gt, w("out.txt"), w("echo"), w("hi")},
+			[]Token{Gt, W("out.txt"), W("echo"), W("hi")},
 		},
 		{
 			"quoted target",
 			`echo hi > "my file.txt"`,
-			[]Token{w("echo"), w("hi"), gt, w("my file.txt")},
+			[]Token{W("echo"), W("hi"), Gt, W("my file.txt")},
 		},
 		{
 			"two redirects",
 			`echo a > f1 > f2`,
-			[]Token{w("echo"), w("a"), gt, w("f1"), gt, w("f2")},
+			[]Token{W("echo"), W("a"), Gt, W("f1"), Gt, W("f2")},
 		},
 	})
 }
@@ -355,42 +343,42 @@ func TestLexOperatorSpacing(t *testing.T) {
 		{
 			"no spaces",
 			`echo hi>out.txt`,
-			[]Token{w("echo"), w("hi"), gt, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Gt, W("out.txt")},
 		},
 		{
 			"space before only",
 			`echo hi >out.txt`,
-			[]Token{w("echo"), w("hi"), gt, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Gt, W("out.txt")},
 		},
 		{
 			"append no spaces",
 			`echo hi>>out.txt`,
-			[]Token{w("echo"), w("hi"), dgt, w("out.txt")},
+			[]Token{W("echo"), W("hi"), Dgt, W("out.txt")},
 		},
 		{
 			"a2 is a word",
 			`echo a2> f`,
-			[]Token{w("echo"), w("a2"), gt, w("f")},
+			[]Token{W("echo"), W("a2"), Gt, W("f")},
 		},
 		{
 			"2> attached",
 			`echo 2>f`,
-			[]Token{w("echo"), gt2, w("f")},
+			[]Token{W("echo"), Gt2, W("f")},
 		},
 		{
 			"2 then space is a word",
 			`echo 2 > f`,
-			[]Token{w("echo"), w("2"), gt, w("f")},
+			[]Token{W("echo"), W("2"), Gt, W("f")},
 		},
 		{
-			"quoted gt is a word",
+			"quoted Gt is a word",
 			`echo ">" f`,
-			[]Token{w("echo"), w(">"), w("f")},
+			[]Token{W("echo"), W(">"), W("f")},
 		},
 		{
 			"quoted 2 is a word",
 			`echo "2"> f`,
-			[]Token{w("echo"), w("2"), gt, w("f")},
+			[]Token{W("echo"), W("2"), Gt, W("f")},
 		},
 	})
 }
@@ -400,37 +388,37 @@ func TestLexPipelines(t *testing.T) {
 		{
 			"two stages",
 			`ls | wc -l`,
-			[]Token{w("ls"), pipe, w("wc"), w("-l")},
+			[]Token{W("ls"), PipeTok, W("wc"), W("-l")},
 		},
 		{
 			"four stages",
 			`cat file | grep foo | sort | uniq`,
-			[]Token{w("cat"), w("file"), pipe, w("grep"), w("foo"), pipe, w("sort"), pipe, w("uniq")},
+			[]Token{W("cat"), W("file"), PipeTok, W("grep"), W("foo"), PipeTok, W("sort"), PipeTok, W("uniq")},
 		},
 		{
 			"no spaces",
 			`ls|wc`,
-			[]Token{w("ls"), pipe, w("wc")},
+			[]Token{W("ls"), PipeTok, W("wc")},
 		},
 		{
 			"builtin in pipe",
 			`echo hello | wc -c`,
-			[]Token{w("echo"), w("hello"), pipe, w("wc"), w("-c")},
+			[]Token{W("echo"), W("hello"), PipeTok, W("wc"), W("-c")},
 		},
 		{
 			"pipe then redirect",
 			`cat f | sort > sorted.txt`,
-			[]Token{w("cat"), w("f"), pipe, w("sort"), gt, w("sorted.txt")},
+			[]Token{W("cat"), W("f"), PipeTok, W("sort"), Gt, W("sorted.txt")},
 		},
 		{
 			"stderr redirect then pipe",
 			`ls /nope 2> err.txt | wc -l`,
-			[]Token{w("ls"), w("/nope"), gt2, w("err.txt"), pipe, w("wc"), w("-l")},
+			[]Token{W("ls"), W("/nope"), Gt2, W("err.txt"), PipeTok, W("wc"), W("-l")},
 		},
 		{
 			"quoted pipe",
 			`echo "a|b" | wc -c`,
-			[]Token{w("echo"), w("a|b"), pipe, w("wc"), w("-c")},
+			[]Token{W("echo"), W("a|b"), PipeTok, W("wc"), W("-c")},
 		},
 	})
 }
@@ -445,52 +433,52 @@ func TestLexUnexpandedWords(t *testing.T) {
 		{
 			"variable",
 			`echo $HOME`,
-			[]Token{w("echo"), w("$HOME")},
+			[]Token{W("echo"), W("$HOME")},
 		},
 		{
 			"braced variable",
 			`echo ${HOME}/bin`,
-			[]Token{w("echo"), w("${HOME}/bin")},
+			[]Token{W("echo"), W("${HOME}/bin")},
 		},
 		{
 			"double quoted variable",
 			`echo "$HOME"`,
-			[]Token{w("echo"), w("$HOME")},
+			[]Token{W("echo"), W("$HOME")},
 		},
 		{
 			"single quoted variable",
 			`echo '$HOME'`,
-			[]Token{w("echo"), w("$HOME")},
+			[]Token{W("echo"), W("$HOME")},
 		},
 		{
 			"exit status",
 			`echo $?`,
-			[]Token{w("echo"), w("$?")},
+			[]Token{W("echo"), W("$?")},
 		},
 		{
 			"tilde",
 			`cd ~`,
-			[]Token{w("cd"), w("~")},
+			[]Token{W("cd"), W("~")},
 		},
 		{
 			"tilde path",
 			`ls ~/docs`,
-			[]Token{w("ls"), w("~/docs")},
+			[]Token{W("ls"), W("~/docs")},
 		},
 		{
 			"tilde mid-word",
 			`echo a~b`,
-			[]Token{w("echo"), w("a~b")},
+			[]Token{W("echo"), W("a~b")},
 		},
 		{
 			"quoted tilde",
 			`echo "~"`,
-			[]Token{w("echo"), w("~")},
+			[]Token{W("echo"), W("~")},
 		},
 		{
 			"assignment",
 			`export PATH=~/bin:$PATH`,
-			[]Token{w("export"), w("PATH=~/bin:$PATH")},
+			[]Token{W("export"), W("PATH=~/bin:$PATH")},
 		},
 	})
 }
@@ -517,33 +505,33 @@ func TestLexMalformedButTokenizable(t *testing.T) {
 		{
 			"trailing pipe",
 			`ls |`,
-			[]Token{w("ls"), pipe},
+			[]Token{W("ls"), PipeTok},
 		},
 		{
 			"leading pipe",
 			`| ls`,
-			[]Token{pipe, w("ls")},
+			[]Token{PipeTok, W("ls")},
 		},
 		{
 			"double pipe",
 			`ls | | wc`,
-			[]Token{w("ls"), pipe, pipe, w("wc")},
+			[]Token{W("ls"), PipeTok, PipeTok, W("wc")},
 		},
 		{
 			"redirect without target",
 			`echo >`,
-			[]Token{w("echo"), gt},
+			[]Token{W("echo"), Gt},
 		},
 		{
 			"redirect then pipe",
 			`echo > | wc`,
-			[]Token{w("echo"), gt, pipe, w("wc")},
+			[]Token{W("echo"), Gt, PipeTok, W("wc")},
 		},
 		// The lexer takes the longest operator it can: >> then >.
 		{
 			"triple gt",
 			`echo hi >>> f`,
-			[]Token{w("echo"), w("hi"), dgt, gt, w("f")},
+			[]Token{W("echo"), W("hi"), Dgt, Gt, W("f")},
 		},
 	})
 }
