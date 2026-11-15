@@ -2,8 +2,7 @@ package commands
 
 import (
 	"io"
-
-	"github.com/tinyshell/internal/state"
+	"os"
 )
 
 type Pwd struct {
@@ -14,13 +13,12 @@ func NewPwd() *Pwd {
 }
 
 func (p *Pwd) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
 ) int {
-	currentDir, err := state.Get("currentDir")
+	currentDir, err := os.Getwd()
 
 	if err != nil {
 		stderr.Write([]byte(err.Error()))

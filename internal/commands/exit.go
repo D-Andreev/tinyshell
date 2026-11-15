@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/tinyshell/internal/constants"
-	"github.com/tinyshell/internal/state"
 )
 
 type Exit struct {
@@ -18,7 +17,6 @@ func NewExit() *Exit {
 }
 
 func (e *Exit) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,

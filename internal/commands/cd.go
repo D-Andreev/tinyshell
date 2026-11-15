@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/tinyshell/internal/constants"
-	"github.com/tinyshell/internal/state"
 )
 
 type Cd struct {
@@ -29,7 +28,6 @@ Stretch: cd - goes back to the previous directory ($OLDPWD) and prints it.
 The change must persist: after cd /tmp, both pwd and an external ls see /tmp.
 */
 func (cd *Cd) Execute(
-	state *state.State,
 	args []string,
 	stdin io.Reader,
 	stdout io.Writer,
@@ -38,7 +36,10 @@ func (cd *Cd) Execute(
 	targetPath := os.Getenv("HOME")
 	// Go to home page
 	if len(args) == 0 || (len(args) == 1 && args[0] == constants.TILDE) {
-		state.Set("currentDir", targetPath)
+		if err := os.Chdir(targetPath); err != nil {
+			stderr.Write([]byte(err.Error() + "\n"))
+			return 1
+		}
 		return 0
 	}
 
@@ -53,13 +54,16 @@ func (cd *Cd) Execute(
 	// Check if path is valid
 	fileInfo, err := os.Stat(path)
 	if errors.Is(err, os.ErrNotExist) {
-		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR, path)))
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR+"\n", path)))
 		return 1
 	} else if !fileInfo.IsDir() {
-		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY, path)))
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY+"\n", path)))
 		return 1
 	}
 
-	state.Set("currentDir", path)
+	if err := os.Chdir(path); err != nil {
+		stderr.Write([]byte(err.Error() + "\n"))
+		return 1
+	}
 	return 0
 }

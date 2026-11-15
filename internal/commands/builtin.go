@@ -5,12 +5,10 @@ import (
 	"io"
 
 	"github.com/tinyshell/internal/constants"
-	"github.com/tinyshell/internal/state"
 )
 
 type Commander interface {
 	Execute(
-		state *state.State,
 		args []string,
 		stdin io.Reader,
 		stdout io.Writer,
