@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,7 +31,10 @@ The change must persist: after cd /tmp, both pwd and an external ls see /tmp.
 func (cd *Cd) Execute(
 	state *state.State,
 	args []string,
-) (string, func(), error) {
+	stdin io.Reader,
+	stdout io.Writer,
+	stderr io.Writer,
+) func() {
 	targetPath := os.Getenv("HOME")
 	effect := func() {
 		state.Set("currentDir", targetPath)
@@ -38,7 +42,7 @@ func (cd *Cd) Execute(
 
 	// Go to home page
 	if len(args) == 0 || (len(args) == 1 && args[0] == constants.TILDE) {
-		return "", effect, nil
+		return effect
 	}
 
 	args[0] = strings.ReplaceAll(args[0], "~", targetPath)
@@ -46,16 +50,18 @@ func (cd *Cd) Execute(
 	// Resolve path
 	path, err := filepath.Abs(args[0])
 	if err != nil {
-		return "", constants.NOOP, err
+		return constants.NOOP
 	}
 
 	// Check if path is valid
 	fileInfo, err := os.Stat(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return "", constants.NOOP, fmt.Errorf(constants.ERROR_NO_SUCH_FILE_OR_DIR, path)
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR, path)))
+		return constants.NOOP
 	} else if !fileInfo.IsDir() {
-		return "", constants.NOOP, fmt.Errorf(constants.ERROR_NOT_A_DIRECTORY, path)
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY, path)))
+		return constants.NOOP
 	}
 
-	return "", effect, nil
+	return effect
 }

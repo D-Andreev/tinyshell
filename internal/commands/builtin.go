@@ -2,13 +2,20 @@ package commands
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/state"
 )
 
 type Commander interface {
-	Execute(state *state.State, args []string) (string, func(), error)
+	Execute(
+		state *state.State,
+		args []string,
+		stdin io.Reader,
+		stdout io.Writer,
+		stderr io.Writer,
+	) func()
 }
 
 type Builtin struct {
@@ -16,15 +23,16 @@ type Builtin struct {
 }
 
 func NewBuiltin() *Builtin {
-	return &Builtin{
+	b := &Builtin{
 		commands: map[string]Commander{
 			"exit": NewExit(),
 			"echo": NewEcho(),
-			"type": NewType(),
 			"pwd":  NewPwd(),
 			"cd":   NewCd(),
 		},
 	}
+	b.commands["type"] = NewType(b)
+	return b
 }
 
 func (b *Builtin) Get(commandName string) (Commander, error) {

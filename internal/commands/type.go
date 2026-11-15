@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/tinyshell/internal/constants"
@@ -10,21 +11,24 @@ import (
 )
 
 type Type struct {
+	builtin *Builtin
 }
 
-func NewType() *Type {
-	return &Type{}
+func NewType(builtin *Builtin) *Type {
+	return &Type{builtin}
 }
 
 func (t *Type) Execute(
 	state *state.State,
 	args []string,
-) (string, func(), error) {
+	stdin io.Reader,
+	stdout io.Writer,
+	stderr io.Writer,
+) func() {
 	var res strings.Builder
-	builtinCommands := NewBuiltin()
 	p := path.NewPath()
 	for _, arg := range args {
-		_, err := builtinCommands.Get(arg)
+		_, err := t.builtin.Get(arg)
 		if err != nil {
 			// command is not builtin, check if it's external
 			externalProgramPath, err := p.Get(arg)
@@ -39,5 +43,6 @@ func (t *Type) Execute(
 		res.WriteString(arg + " is /bin/" + arg + "\n")
 	}
 
-	return res.String(), constants.NOOP, nil
+	stdout.Write([]byte(res.String()))
+	return constants.NOOP
 }

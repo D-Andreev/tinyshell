@@ -139,14 +139,7 @@ func main() {
 
 		// execute
 		args := parts[1:]
-		res, effect, err := command.Execute(state, args)
-		if err != nil {
-
-		}
-		// print output
-		if len(res) > 0 {
-			fmt.Printf("%s", res)
-		}
+		effect := command.Execute(state, args, os.Stdin, os.Stdout, os.Stderr)
 		effect()
 	}
 }
