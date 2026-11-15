@@ -53,10 +53,10 @@ func (cd *Cd) Execute(
 	// Check if path is valid
 	fileInfo, err := os.Stat(path)
 	if errors.Is(err, os.ErrNotExist) {
-		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR, path)))
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR+"\n", path)))
 		return 1
 	} else if !fileInfo.IsDir() {
-		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY, path)))
+		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY+"\n", path)))
 		return 1
 	}
 
