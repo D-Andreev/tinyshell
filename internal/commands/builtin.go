@@ -15,7 +15,7 @@ type Commander interface {
 		stdin io.Reader,
 		stdout io.Writer,
 		stderr io.Writer,
-	) func()
+	) int
 }
 
 type Builtin struct {

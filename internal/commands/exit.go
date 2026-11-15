@@ -23,18 +23,16 @@ func (e *Exit) Execute(
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
-) func() {
+) int {
 	var exitCode int
 	var err error
 	if len(args) > 0 {
 		exitCode, err = strconv.Atoi(args[0])
 		if err != nil {
 			stderr.Write([]byte(fmt.Sprintf(constants.INVALID_EXIT_CODE+"\n", args[0])))
-			return constants.NOOP
+			return 1
 		}
 	}
-	effect := func() {
-		os.Exit(exitCode)
-	}
-	return effect
+	os.Exit(exitCode)
+	return exitCode
 }

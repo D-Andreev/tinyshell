@@ -4,7 +4,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/state"
 )
 
@@ -21,10 +20,10 @@ func (e *Echo) Execute(
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
-) func() {
+) int {
 	if len(args) == 0 {
 		stdout.Write([]byte("\n"))
-		return constants.NOOP
+		return 0
 	}
 
 	var res strings.Builder
@@ -39,5 +38,5 @@ func (e *Echo) Execute(
 
 	stdout.Write([]byte(res.String()))
 
-	return constants.NOOP
+	return 0
 }

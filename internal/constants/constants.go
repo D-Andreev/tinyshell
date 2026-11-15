@@ -1,7 +1,6 @@
 package constants
 
 var SHELL_TRAILING_SYMBOL = "$"
-var NOOP = func() {}
 var EXECUTE_PERMISSION_BIT = "x"
 var TILDE = "~"
 

@@ -24,8 +24,9 @@ func (t *Type) Execute(
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
-) func() {
+) int {
 	var res strings.Builder
+	status := 0
 	p := path.NewPath()
 	for _, arg := range args {
 		_, err := t.builtin.Get(arg)
@@ -35,6 +36,7 @@ func (t *Type) Execute(
 			if err != nil {
 				// command is neither builtin nor external
 				fmt.Fprintf(&res, constants.COMMAND_NOT_FOUND, arg)
+				status = 1
 				continue
 			}
 			res.WriteString(arg + " is " + externalProgramPath + "\n")
@@ -44,5 +46,5 @@ func (t *Type) Execute(
 	}
 
 	stdout.Write([]byte(res.String()))
-	return constants.NOOP
+	return status
 }

@@ -139,7 +139,6 @@ func main() {
 
 		// execute
 		args := parts[1:]
-		effect := command.Execute(state, args, os.Stdin, os.Stdout, os.Stderr)
-		effect()
+		_ = command.Execute(state, args, os.Stdin, os.Stdout, os.Stderr)
 	}
 }

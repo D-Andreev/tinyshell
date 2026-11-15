@@ -34,15 +34,12 @@ func (cd *Cd) Execute(
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
-) func() {
+) int {
 	targetPath := os.Getenv("HOME")
-	effect := func() {
-		state.Set("currentDir", targetPath)
-	}
-
 	// Go to home page
 	if len(args) == 0 || (len(args) == 1 && args[0] == constants.TILDE) {
-		return effect
+		state.Set("currentDir", targetPath)
+		return 0
 	}
 
 	args[0] = strings.ReplaceAll(args[0], "~", targetPath)
@@ -50,18 +47,19 @@ func (cd *Cd) Execute(
 	// Resolve path
 	path, err := filepath.Abs(args[0])
 	if err != nil {
-		return constants.NOOP
+		return 1
 	}
 
 	// Check if path is valid
 	fileInfo, err := os.Stat(path)
 	if errors.Is(err, os.ErrNotExist) {
 		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NO_SUCH_FILE_OR_DIR, path)))
-		return constants.NOOP
+		return 1
 	} else if !fileInfo.IsDir() {
 		stderr.Write([]byte(fmt.Sprintf(constants.ERROR_NOT_A_DIRECTORY, path)))
-		return constants.NOOP
+		return 1
 	}
 
-	return effect
+	state.Set("currentDir", path)
+	return 0
 }

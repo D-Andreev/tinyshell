@@ -3,7 +3,6 @@ package commands
 import (
 	"io"
 
-	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/state"
 )
 
@@ -20,14 +19,14 @@ func (p *Pwd) Execute(
 	stdin io.Reader,
 	stdout io.Writer,
 	stderr io.Writer,
-) func() {
+) int {
 	currentDir, err := state.Get("currentDir")
 
 	if err != nil {
 		stderr.Write([]byte(err.Error()))
-		return constants.NOOP
+		return 1
 	}
 
 	stdout.Write([]byte(currentDir + "\n"))
-	return constants.NOOP
+	return 0
 }
