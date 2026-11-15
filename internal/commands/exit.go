@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -19,17 +20,19 @@ func NewExit() *Exit {
 func (e *Exit) Execute(
 	state *state.State,
 	args []string,
-) (string, func(), error) {
+	stdin io.Reader,
+	stdout io.Writer,
+	stderr io.Writer,
+) int {
 	var exitCode int
 	var err error
 	if len(args) > 0 {
 		exitCode, err = strconv.Atoi(args[0])
 		if err != nil {
-			return "", constants.NOOP, fmt.Errorf(constants.INVALID_EXIT_CODE, args[0])
+			stderr.Write([]byte(fmt.Sprintf(constants.INVALID_EXIT_CODE+"\n", args[0])))
+			return 1
 		}
 	}
-	effect := func() {
-		os.Exit(exitCode)
-	}
-	return "", effect, nil
+	os.Exit(exitCode)
+	return exitCode
 }

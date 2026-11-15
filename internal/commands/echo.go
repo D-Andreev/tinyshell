@@ -1,9 +1,9 @@
 package commands
 
 import (
+	"io"
 	"strings"
 
-	"github.com/tinyshell/internal/constants"
 	"github.com/tinyshell/internal/state"
 )
 
@@ -17,9 +17,13 @@ func NewEcho() *Echo {
 func (e *Echo) Execute(
 	state *state.State,
 	args []string,
-) (string, func(), error) {
+	stdin io.Reader,
+	stdout io.Writer,
+	stderr io.Writer,
+) int {
 	if len(args) == 0 {
-		return "\n", constants.NOOP, nil
+		stdout.Write([]byte("\n"))
+		return 0
 	}
 
 	var res strings.Builder
@@ -32,5 +36,7 @@ func (e *Echo) Execute(
 	}
 	res.WriteString("\n")
 
-	return res.String(), constants.NOOP, nil
+	stdout.Write([]byte(res.String()))
+
+	return 0
 }

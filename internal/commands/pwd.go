@@ -1,7 +1,8 @@
 package commands
 
 import (
-	"github.com/tinyshell/internal/constants"
+	"io"
+
 	"github.com/tinyshell/internal/state"
 )
 
@@ -15,8 +16,17 @@ func NewPwd() *Pwd {
 func (p *Pwd) Execute(
 	state *state.State,
 	args []string,
-) (string, func(), error) {
-	currentDir, error := state.Get("currentDir")
+	stdin io.Reader,
+	stdout io.Writer,
+	stderr io.Writer,
+) int {
+	currentDir, err := state.Get("currentDir")
 
-	return currentDir + "\n", constants.NOOP, error
+	if err != nil {
+		stderr.Write([]byte(err.Error()))
+		return 1
+	}
+
+	stdout.Write([]byte(currentDir + "\n"))
+	return 0
 }
